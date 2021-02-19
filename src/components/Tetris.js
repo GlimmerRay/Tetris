@@ -39,8 +39,74 @@ export default class Tetris extends React.Component {
 
     componentDidMount() {
         this.dropShape = setInterval(this.decrementShapePosition.bind(this), this.fallingSpeed)
+        window.addEventListener('keydown', this.handleKeyDown.bind(this))
+    }
+    // TODO: research are keycodes consistent across browsers??
+    // TODO: what is the best way to handle key events?
+    // do you add listner to window? etc...
+    handleKeyDown(event) {
+        if (event.keyCode === 37) {
+            this.moveShapeLeft()
+        } else if (event.keyCode === 38) {
+            console.log('up key pressed')
+        } else if (event.keyCode === 39) {
+            this.moveShapeRight()
+        } else if (event.keyCode === 40) {
+            this.decrementShapePosition()
+        }
     }
 
+    moveShapeLeft() {
+        var staticGrid = this.state.staticGrid
+        var shape = this.state.shape
+        var newShape = []
+        for (var index of shape) {
+            newShape.push([index[0], index[1]-1])
+        }
+        // if the shape is out of bounds off the left side of the grid
+        // don't update it
+        for (var index of newShape) {
+            if (index[1] < 0) {
+                return
+            }
+        }
+        // if the shape is collding with another shape, don't update it
+        for (var index of newShape) {
+            if (staticGrid[index[0]][index[1]] == 1) {
+                return
+            }
+        }
+        // if all tests pass, update the shape
+        this.setState({shape: newShape})
+    }
+
+    moveShapeRight() {
+        var staticGrid = this.state.staticGrid
+        var shape = this.state.shape
+        var newShape = []
+        for (var index of shape) {
+            newShape.push([index[0], index[1]+1])
+        }
+        // if the shape is out of bounds off the left side of the grid
+        // don't update it
+        for (var index of newShape) {
+            if (index[1] >= this.width) {
+                return
+            }
+        }
+        // if the shape is collding with another shape, don't update it
+        for (var index of newShape) {
+            if (staticGrid[index[0]][index[1]] == 1) {
+                return
+            }
+        }
+        // if all tests pass, update the shape
+        this.setState({shape: newShape})
+    }
+
+    // TODO: order the functions in a nice way
+    // TODO: do all functions need to be defined in this class?
+    // maybe we only need state updating functions in here and others can be utils
     componentWillUnmount() {
         clearInterval(this.dropShape)
     }
@@ -52,8 +118,6 @@ export default class Tetris extends React.Component {
         for (var index of shape) {
             newShape.push([index[0]+1, index[1]])
         }
-        // TODO: check for collision with botton AND static grid
-        console.log(!this.collides(newShape))
         if (!this.collides(newShape)) {
             this.setState({shape: newShape, count: count+1})
         // TODO: make this also work for conflicts in general, not just
