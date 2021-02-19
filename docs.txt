@@ -1,0 +1,22 @@
+// TODO: make docs prettier and better worded
+
+
+A 'Grid' takes a 2d array of 1s and 0s and renders
+a table of colored accordingly
+
+Tetris has a 'staticGrid' and a 'shape'
+'staticGrid' keeps track of the active cells which are unmoving
+'shape' keeps track of the active cells which are currently moving
+a 'shape' is simply a set of indices
+'shape' functions are used to generate shapes
+they only take a center
+each render needs to display 'shape' and 'staticGrid'
+since they are stored separately, they need to be joined
+'joinShapeGrid' returns a new 2d array which is a joined version of 'staticGrid' and 'shape'
+When the component mounts, we set an interval function decrementShapeCenter
+which constantly moves state.shape down the screen
+decrementShapeCenter checks for collisions using collides()
+If there is a collision, it adds the current shape to staticGrid and generates
+a new moving shape at the top of the Grid
+a collision occurs when the potential new shape shares an index with staticGrid
+or has an out of bounds y position

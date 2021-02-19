@@ -1,0 +1,41 @@
+Two components, Grid and tetris
+Grid simply takes a 2d array of 1s and 0s and highlights the 1s
+
+tetris has two state variables
+frozen grid and currentShape (shape_function, col, row, rotation)
+when tetris renders, it renders both
+    -take a copy of frozen grid
+    -use shape_function(col, row, rotation) to get indices
+    -set the indices onto the copy
+    -pass that to Grid
+
+changing position or rotation...
+first we generate the new indices
+if there is an intersection, break (do nothing)
+else set the new position or rotation
+SPECIAL CASE
+if moving down
+if there is an intersection
+freeze shape
+generate new shape
+
+So, we need a function for each shape which returns a set of indices
+based on its position (col, row) and its rotation
+
+We need a function for freeze shape (just merge it onto frozen grid)
+We need a function for generating a new shape (choose random shape, col, and rotation. row should be 
+0 or something)
+We need a setInterval which calls moveShapeDown whose speed increases over time
+We need a function which checks for match
+We need a function which removes a row 
+
+
+// returns the indices of shape positioned at i,j
+shape(i, j)
+shapes include...
+square, line, el_l, el_r, tee, zee_r, zee_l
+need better names
+
+The top row is going to have index 0
+The bottom row is going to have index BOARD_HEIGHT
+We can have hidden rows (ie indices which can be filled but aren't rendered)
