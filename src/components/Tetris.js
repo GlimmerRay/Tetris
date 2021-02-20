@@ -1,14 +1,13 @@
 import React from "react";
 import Grid from "./Grid.js";
 
-
-// TODO: add movement
+// TODO: make each shape a class
 // TODO: stop game when shapes overflow at top
-// TODO: add more shapes
 // TODO: random position for new shapes at top
 // TODO: add rotation
 // TODO: different colors for different shapes
 // TODO: check for filled row and decrement everything if so and points
+// TODO: beveled edges
 
 
 // TODO: add notes (and maybe others) to .gitignore
@@ -22,6 +21,56 @@ function square(center) {
     return [topLeft, topRight, bottomLeft, bottomRight]
 }
 
+function line(center) {
+    var square1 = [center[0], center[1]-1]
+    var square2 = center
+    var square3 = [center[0], center[1]+1]
+    var square4 = [center[0], center[1]+2]
+    return [square1, square2, square3, square4]
+}
+
+
+
+function teeShape(center) {
+    var square1 = [center[0], center[1]-1]
+    var square2 = center
+    var square3 = [center[0], center[1]+1]
+    var square4 = [center[0]+1, center[1]]
+    return [square1, square2, square3, square4]
+}
+
+function snakeShapeRight(center) {
+    var square1 = center
+    var square2 = [center[0]+1, center[1]]
+    var square3 = [center[0]+1, center[1]+1]
+    var square4 = [center[0]+2, center[1]+1]
+    return [square1, square2, square3, square4]
+}
+
+function snakeShapeLeft(center) {
+    var square1 = center
+    var square2 = [center[0]+1, center[1]]
+    var square3 = [center[0]+1, center[1]-1]
+    var square4 = [center[0]+2, center[1]-1]
+    return [square1, square2, square3, square4]
+}
+
+function lShapeRight(center) {
+    var square1 = center
+    var square2 = [center[0]+1, center[1]]
+    var square3 = [center[0]+2, center[1]]
+    var square4 = [center[0]+2, center[1]+1]
+    return [square1, square2, square3, square4]
+}
+
+function lShapeLeft(center) {
+    var square1 = center
+    var square2 = [center[0]+1, center[1]]
+    var square3 = [center[0]+2, center[1]]
+    var square4 = [center[0]+2, center[1]-1]
+    return [square1, square2, square3, square4]
+}
+
 // a 'shape' is a list of indices
 
 export default class Tetris extends React.Component {
@@ -32,7 +81,7 @@ export default class Tetris extends React.Component {
         this.fallingSpeed = 500
         this.state = {
             staticGrid: this.makeEmptyGrid(this.height, this.width),
-            shape: square([0, 5]),
+            shape: lShapeLeft([0, 5]),
             count: 0
         }
     }
