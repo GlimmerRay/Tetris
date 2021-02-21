@@ -1,114 +1,72 @@
 import React from "react";
 import Grid from "./Grid.js";
-import { Line } from "../shapes.js";
+import { Line, TeeShape, SnakeShapeRight, SnakeShapeLeft,
+LShapeRight, LShapeLeft, Square } from "../shapes.js";
 
-// TODO: make each shape a class
-// TODO: stop game when shapes overflow at top
-// TODO: random position for new shapes at top
-// TODO: add rotation
+
 // TODO: different colors for different shapes
-// TODO: check for filled row and decrement everything if so and points
-// TODO: beveled edges
+// todo: beveled edges
+// TODO: game over when overflow at top
+// TODO: increment points when row filled
+// TODO: sound when row filled
+// TODO: display points
+// TODO: speed up with point total (new level every four points)
 
-
-// TODO: add notes (and maybe others) to .gitignore
-// TODO: add type checking for input
-// TODO: docs
-// function square(center) {
-//     var topLeft = center
-//     var topRight = [center[0], center[1]+1]
-//     var bottomLeft = [center[0]+1, center[1]]
-//     var bottomRight = [center[0]+1, center[1]+1]
-//     return [topLeft, topRight, bottomLeft, bottomRight]
-// }
-
-// function line(center) {
-//     var square1 = [center[0], center[1]-1]
-//     var square2 = center
-//     var square3 = [center[0], center[1]+1]
-//     var square4 = [center[0], center[1]+2]
-//     return [square1, square2, square3, square4]
-// }
-
-
-
-// function teeShape(center) {
-//     var square1 = [center[0], center[1]-1]
-//     var square2 = center
-//     var square3 = [center[0], center[1]+1]
-//     var square4 = [center[0]+1, center[1]]
-//     return [square1, square2, square3, square4]
-// }
-
-// function snakeShapeRight(center) {
-//     var square1 = center
-//     var square2 = [center[0]+1, center[1]]
-//     var square3 = [center[0]+1, center[1]+1]
-//     var square4 = [center[0]+2, center[1]+1]
-//     return [square1, square2, square3, square4]
-// }
-
-// function snakeShapeLeft(center) {
-//     var square1 = center
-//     var square2 = [center[0]+1, center[1]]
-//     var square3 = [center[0]+1, center[1]-1]
-//     var square4 = [center[0]+2, center[1]-1]
-//     return [square1, square2, square3, square4]
-// }
-
-// function lShapeRight(center) {
-//     var square1 = center
-//     var square2 = [center[0]+1, center[1]]
-//     var square3 = [center[0]+2, center[1]]
-//     var square4 = [center[0]+2, center[1]+1]
-//     return [square1, square2, square3, square4]
-// }
-
-// function lShapeLeft(center) {
-//     var square1 = center
-//     var square2 = [center[0]+1, center[1]]
-//     var square3 = [center[0]+2, center[1]]
-//     var square4 = [center[0]+2, center[1]-1]
-//     return [square1, square2, square3, square4]
-// }
-
-// a 'shape' is a list of indices
 
 export default class Tetris extends React.Component {
     constructor(props) {
         super(props)
-        this.gridHeight = 15
-        this.gridWidth = 15
+        this.gridWidth = 10
+        this.gridHeight = 20
         this.fallingSpeed = 500
+        this.allShapes = [new Line(), new TeeShape(), new SnakeShapeRight(), new SnakeShapeLeft(),
+        new LShapeRight(), new LShapeLeft(), new Square()]
         this.state = {
             staticGrid: this.makeEmptyGrid(this.gridHeight, this.gridWidth),
-            shape: new Line(),
-            centerX: 8,
-            centerY: 2,
+            shape: this.getRandomShape(),
+            centerX: 4,
+            centerY: 1,
             rotation: 0,
-            count: 0
         }
     }
 
+    // I like this
     componentDidMount() {
         this.dropShape = setInterval(this.decrementShapePosition.bind(this), this.fallingSpeed)
-        window.addEventListener('keydown', this.handleKeyDown.bind(this))
+        window.addEventListener('keydown', this.handleUserInput.bind(this))
     }
-    // TODO: research are keycodes consistent across browsers??
-    // TODO: what is the best way to handle key events?
-    // do you add listner to window? etc...
-    handleKeyDown(event) {
-        if (event.keyCode === 37) {
+
+    // I like this
+    componentWillUnmount() {
+        clearInterval(this.dropShape)
+    }
+
+    // I like this
+    handleUserInput(event) {
+        if (event.keyCode === 37) { // left arrow
             this.moveShapeLeft()
-        } else if (event.keyCode === 38) {
+        } else if (event.keyCode === 38) { // up arrow
             this.rotate()
-        } else if (event.keyCode === 39) {
+        } else if (event.keyCode === 39) { // right arrow
             this.moveShapeRight()
-        } else if (event.keyCode === 40) {
+        } else if (event.keyCode === 40) { // down arrow
             this.decrementShapePosition()
         }
     }
 
+    // I like this
+    moveShapeLeft() {
+        var newCenterX = this.state.centerX - 1
+        var centerY = this.state.centerY
+        var rotation = this.state.rotation
+        if (!(this.collides(newCenterX, centerY, rotation))) {
+            this.setState({centerX: newCenterX})
+        } else {
+            ;
+        }
+    }
+
+    // I like this
     rotate() {
         var centerX = this.state.centerX
         var centerY = this.state.centerY
@@ -125,17 +83,7 @@ export default class Tetris extends React.Component {
         }
     }
 
-    moveShapeLeft() {
-        var newCenterX = this.state.centerX - 1
-        var centerY = this.state.centerY
-        var rotation = this.state.rotation
-        if (!(this.collides(newCenterX, centerY, rotation))) {
-            this.setState({centerX: newCenterX})
-        } else {
-            ;
-        }
-    }
-
+    // I like this
     moveShapeRight() {
         var newCenterX = this.state.centerX + 1
         var centerY = this.state.centerY
@@ -147,13 +95,7 @@ export default class Tetris extends React.Component {
         }
     }
 
-    // TODO: order the functions in a nice way
-    // TODO: do all functions need to be defined in this class?
-    // maybe we only need state updating functions in here and others can be utils
-    componentWillUnmount() {
-        clearInterval(this.dropShape)
-    }
-
+    // I like this
     decrementShapePosition() {
         var centerX = this.state.centerX
         var centerY = this.state.centerY
@@ -166,49 +108,77 @@ export default class Tetris extends React.Component {
         }
     }
 
-    // TODO: study == vs. ====
-    // TODO: make shape indexing easier
-    // returns true of any indices of shape are in staticGrid else false
+    // I like this
     collides(centerX, centerY, rotation) {
         var staticGrid = this.state.staticGrid
         var shapeIndices = this.state.shape.makeIndices(centerX, centerY, rotation)
-        if (this.bottomYPosition(shapeIndices) >= this.gridHeight) {
-            return true
-        }
         for (var index of shapeIndices) {
-            if (staticGrid[index[1]][index[0]] == 1) {
+            // check for left out of bounds, right out of bounds, and bottom out of bounds
+            if (index[0] < 0 || index[0] >= this.gridWidth || index[1] >= this.gridHeight)  {
                 return true
             }
-            if (index[0] < 0 || index[0] >= this.gridWidth)  {
+            // check for collision with static grid
+            if (staticGrid[index[1]][index[0]] == 1) {
                 return true
             }
         }
         return false
     }
 
-    // TODO: make a general out of bounds error
-
-    // add shape to the grid, reset center
-    freezeShape(shape) {
-        console.log(shape)
+    // I like this
+    freezeShape(shapeIndices) {
         var grid = this.state.staticGrid
-        for (var index of shape) {
-            console.log(shape)
+        for (var index of shapeIndices) {
             grid[index[1]][index[0]] = 1
         }
-        this.setState({staticGrid: grid, centerX: 7, centerY: 2})
+        var newShape = this.getRandomShape()
+        var filledRows = this.getFilledRows(grid)
+        if (filledRows.length != 0) {
+            grid = this.removeFilledRows(grid, filledRows)
+        }
+        this.setState({staticGrid: grid, centerX: 7, centerY: 1, shape: newShape,
+        rotation: 0})
     }
 
-    bottomYPosition(shape) {
-        var max = -1
-        for (var index of shape) {
-            if (index[1] > max) {
-                max = index[1]
+    removeFilledRows(grid, filledRows) {
+        // sort in descending order
+        filledRows.sort(function(a,b) {return b-a})
+        var count = 0
+        for (var rowNum of filledRows) {    
+            grid.splice(rowNum+count, 1)
+            grid.splice(0, 0, [0,0,0,0,0,0,0,0,0,0])
+            count += 1
+        }
+        return grid
+    }
+
+    getFilledRows(grid) {
+        var filledRows = []
+        for (var i=0; i<grid.length; i++) {
+            if (this.isFilledRow(grid[i])) {
+                filledRows.push(i)
             }
         }
-        return max
+        return filledRows
     }
 
+    isFilledRow(row) {
+        for (var cell of row) {
+            if (cell === 0) {
+                return false
+            }
+        }
+        return true
+    }
+
+    // the rows which are fillld are deleted
+    // everything above the bottom row is decremented
+
+    decrementGrid() {
+
+    }
+
+    // I like this
     makeEmptyGrid(gridHeight, gridWidth) {
         var rows = []
         for (var row = 0; row < gridHeight; row++) {
@@ -220,10 +190,11 @@ export default class Tetris extends React.Component {
         return rows
     }
 
+    // This is ok...
     joinShapeGrid(shapeIndices) {
         var grid = this.makeEmptyGrid(this.gridHeight, this.gridWidth)
-        for (var i = 0; i<shapeIndices.length; i++) {
-            grid[shapeIndices[i][1]][shapeIndices[i][0]] = 1
+        for (var index of shapeIndices) {
+            grid[index[1]][index[0]] = 1
         }
         for (var i = 0; i < this.state.staticGrid.length; i++) {
             for (var j=0; j < this.state.staticGrid[0].length; j++) {
@@ -235,16 +206,27 @@ export default class Tetris extends React.Component {
         return grid
     }
 
+    // This is good
     getShapeIndices(centerX, centerY, rotation) {
-        // var centerX = this.state.centerX
-        // var centerY = this.state.centerY
-        // var rotation = this.state.rotation
         return this.state.shape.makeIndices(centerX, centerY, rotation)
     }
 
+    // This is good
+    getCurrentShapeIndices() {
+        var centerX = this.state.centerX
+        var centerY = this.state.centerY
+        var rotation = this.state.rotation
+        return this.getShapeIndices(centerX, centerY, rotation)
+    }
+
+    getRandomShape() {
+        var randomIndex = Math.floor(Math.random()*this.allShapes.length)
+        var newShape = this.allShapes[randomIndex]
+        return newShape
+    }
+
     render() {
-        // TODO: make a method for make Indices
-        var grid = this.joinShapeGrid(this.getShapeIndices(this.state.centerX, this.state.centerY, this.state.rotation))
+        var grid = this.joinShapeGrid(this.getCurrentShapeIndices())
         return <Grid values={grid} />
     }
 }
