@@ -3,10 +3,29 @@ td {
     height: 30px;
 }
 
-.on-cell {
+.colorZero {
     background-color: green;
 } 
 
-.off-cell {
+.colorOne {
     background-color: purple;
 }
+
+.colorTwo {
+    background-color: red;
+}
+
+.colorThree {
+    background-color: yellow;
+}
+
+.colorFour {
+    background-color: aqua;
+}
+
+.colorFive {
+    background-color: blue;
+}
+
+
+

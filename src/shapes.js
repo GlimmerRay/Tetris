@@ -1,5 +1,9 @@
 export class Line {
 
+    constructor() {
+        this.color = 1
+    }
+
     makeIndices(centerX, centerY, rotation) {
         if (rotation === 0) {
             return this.makeRotationOne(centerX, centerY)
@@ -46,6 +50,10 @@ export class Line {
 }
 
 export class TeeShape {
+
+    constructor() {
+        this.color = 2
+    }
 
     makeIndices(centerX, centerY, rotation) {
         if (rotation === 0) {
@@ -94,6 +102,10 @@ export class TeeShape {
 
 export class SnakeShapeRight {
 
+    constructor() {
+        this.color = 3
+    }
+
     makeIndices(centerX, centerY, rotation) {
         if (rotation === 0) {
             return this.makeRotationOne(centerX, centerY)
@@ -140,6 +152,10 @@ export class SnakeShapeRight {
 }
 
 export class SnakeShapeLeft {
+
+    constructor() {
+        this.color = 3
+    }
 
     makeIndices(centerX, centerY, rotation) {
         if (rotation === 0) {
@@ -188,6 +204,10 @@ export class SnakeShapeLeft {
 
 export class LShapeRight {
 
+    constructor() {
+        this.color = 4
+    }
+
     makeIndices(centerX, centerY, rotation) {
         if (rotation === 0) {
             return this.makeRotationOne(centerX, centerY)
@@ -234,6 +254,10 @@ export class LShapeRight {
 }
 
 export class LShapeLeft {
+
+    constructor() {
+        this.color = 4
+    }
 
     makeIndices(centerX, centerY, rotation) {
         if (rotation === 0) {
@@ -282,6 +306,10 @@ export class LShapeLeft {
 
 
 export class Square {
+
+    constructor() {
+        this.color = 5
+    }
 
     makeIndices(centerX, centerY, rotation) {
         if (rotation === 0) {
