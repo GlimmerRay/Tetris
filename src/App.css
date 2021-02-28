@@ -3,6 +3,24 @@ td {
     height: 30px;
 }
 
+.tetris {
+    display: inline-block;
+    float: left;
+}
+
+.points {
+    display: inline-block;
+    float: left;
+    width: 50px;
+    height: 50px;
+    border: 4px solid green;
+    margin-left: 20px;
+    font-size: 30px;
+    line-height: 50px;
+    text-align: center;
+    color: blue;
+}
+
 .colorZero {
     background-color: green;
 } 
@@ -26,6 +44,3 @@ td {
 .colorFive {
     background-color: blue;
 }
-
-
-

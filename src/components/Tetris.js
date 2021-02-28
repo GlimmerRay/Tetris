@@ -13,42 +13,43 @@ LShapeRight, LShapeLeft, Square } from "../shapes.js";
 // TODO: speed up with point total (new level every four points)
 // TODO: soft code the rotations
 
-
 export default class Tetris extends React.Component {
     constructor(props) {
         super(props)
         this.gridWidth = 10
         this.gridHeight = 20
         this.fallingSpeed = 500
-        this.allShapes = [new Line(), new TeeShape(), new SnakeShapeRight(), new SnakeShapeLeft(),
-        new LShapeRight(), new LShapeLeft(), new Square()]
+        this.allShapes = [Line, TeeShape, SnakeShapeRight, SnakeShapeLeft,
+        LShapeRight, LShapeLeft, Square]
         this.state = {
             staticGrid: this.makeEmptyGrid(this.gridHeight, this.gridWidth),
             shape: this.getRandomShape(),
             centerX: 4,
             centerY: 1,
             rotation: 0,
+            points: 0
         }
     }
 
     componentDidMount() {
-        this.dropShape = setInterval(this.decrementShapePosition.bind(this), this.fallingSpeed)
+        this.dropShape = setInterval(this.moveShapeDown.bind(this), this.fallingSpeed)
         window.addEventListener('keydown', this.handleUserInput.bind(this))
     }
 
     componentWillUnmount() {
         clearInterval(this.dropShape)
+        console.log('unmount')
     }
 
     handleUserInput(event) {
-        if (event.keyCode === 37) {
+        if (event.keyCode === 37) { // left arrow
             this.moveShapeLeft()
-        } else if (event.keyCode === 38) {
+        } else if (event.keyCode === 38) { // up arrow
             this.rotate()
-        } else if (event.keyCode === 39) {
+        } else if (event.keyCode === 39) { // right arrow
             this.moveShapeRight()
-        } else if (event.keyCode === 40) {
-            this.decrementShapePosition()
+        } else if (event.keyCode === 40) { // down arrow
+            this.moveShapeDown()
         }
     }
 
@@ -63,6 +64,16 @@ export default class Tetris extends React.Component {
         }
     }
 
+    moveShapeRight() {
+        var newCenterX = this.state.centerX + 1
+        var centerY = this.state.centerY
+        var rotation = this.state.rotation
+        if (!(this.collides(newCenterX, centerY, rotation))) {
+            this.setState({centerX: newCenterX})
+        } else {
+            ;
+        }
+    }
 
     rotate() {
         var centerX = this.state.centerX
@@ -80,26 +91,16 @@ export default class Tetris extends React.Component {
         }
     }
 
-    moveShapeRight() {
-        var newCenterX = this.state.centerX + 1
-        var centerY = this.state.centerY
-        var rotation = this.state.rotation
-        if (!(this.collides(newCenterX, centerY, rotation))) {
-            this.setState({centerX: newCenterX})
-        } else {
-            ;
-        }
-    }
-
-    decrementShapePosition() {
+    moveShapeDown() {
         var centerX = this.state.centerX
         var centerY = this.state.centerY
         var newCenterY = this.state.centerY + 1
         var rotation = this.state.rotation
+        // we check if then new shapeIndices collide before changing the state
         if (!this.collides(centerX, newCenterY, rotation)) {
             this.setState({centerY: newCenterY})
         } else {
-            this.freezeShape(this.getShapeIndices(centerX, centerY, rotation))
+            this.resetShape()
         }
     }
 
@@ -110,8 +111,6 @@ export default class Tetris extends React.Component {
             if (index[0] < 0 || index[0] >= this.gridWidth || index[1] >= this.gridHeight)  {
                 return true
             }
-            
-            // staticGrid[index[1]][index[0]] == 1
             if (staticGrid[index[1]][index[0]] != 0) {
                 return true
             }
@@ -119,32 +118,29 @@ export default class Tetris extends React.Component {
         return false
     }
 
-    freezeShape(shapeIndices) {
-        var grid = this.state.staticGrid
-        // vvv was not here before vvv
-        var shape = this.state.shape
-        for (var index of shapeIndices) {
-            // grid[index[1]][index[0]] = 1
-            grid[index[1]][index[0]] = shape.color
-        }
+    resetShape() {
+        grid = this.joinShapeGrid()
+        var [grid, numFilledrows] = this.removeFilledRows(grid)
         var newShape = this.getRandomShape()
-        var filledRows = this.getFilledRows(grid)
-        if (filledRows.length != 0) {
-            grid = this.removeFilledRows(grid, filledRows)
-        }
-        this.setState({staticGrid: grid, centerX: 7, centerY: 1, shape: newShape,
-        rotation: 0})
+        var currentPoints = this.state.points
+        this.setState({staticGrid: grid, 
+            shape: newShape, 
+            centerX: 4, 
+            centerY: 1, 
+            rotation: 0,
+            points: currentPoints + numFilledrows})
     }
 
-    removeFilledRows(grid, filledRows) {
-        filledRows.sort(function(a,b) {return b-a})
+    removeFilledRows(grid) {
+        var filledRows = this.getFilledRows(grid)
+        filledRows.sort(function(a,b) {return b-a}) // we have to remove the rows in order
         var count = 0
-        for (var rowNum of filledRows) {    
-            grid.splice(rowNum+count, 1)
-            grid.splice(0, 0, [0,0,0,0,0,0,0,0,0,0])
+        for (var rowNum of filledRows) {   
+            grid.splice(rowNum+count, 1) // remove the row 
+            grid.splice(0, 0, [0,0,0,0,0,0,0,0,0,0]) // put an empty row at the top
             count += 1
         }
-        return grid
+        return [grid, filledRows.length]
     }
 
     getFilledRows(grid) {
@@ -177,20 +173,18 @@ export default class Tetris extends React.Component {
         return rows
     }
 
-    joinShapeGrid(shapeIndices) {
+    joinShapeGrid() {
+        var shapeIndices = this.getCurrentShapeIndices()
         var grid = this.makeEmptyGrid(this.gridHeight, this.gridWidth)
-        for (var index of shapeIndices) {
-            // grid[index[1]][index[0]] = 1
-            grid[index[1]][index[0]] = this.state.shape.color
-        }
+        // copy static grid
         for (var i = 0; i < this.state.staticGrid.length; i++) {
             for (var j=0; j < this.state.staticGrid[0].length; j++) {
-                // if (this.state.staticGrid[i][j] == 1)
-                if (this.state.staticGrid[i][j] != 0) {
-                    grid[i][j] = this.state.staticGrid[i][j]
-                    // grid[i][j] = 1
-                }
+                grid[i][j] = this.state.staticGrid[i][j]
             }
+        }
+        // copy the current shape
+        for (var index of shapeIndices) {
+            grid[index[1]][index[0]] = this.state.shape.color
         }
         return grid
     }
@@ -213,8 +207,11 @@ export default class Tetris extends React.Component {
     }
 
     render() {
-        var grid = this.joinShapeGrid(this.getCurrentShapeIndices())
-        return <Grid values={grid} colorClasses={["colorZero", "colorOne", "colorTwo", "colorThree",
-        "colorFour", "colorFive"]}/>
+        var grid = this.joinShapeGrid()
+        return <>
+        <Grid className="tetris" grid={grid} 
+        colorClasses={["colorZero", "colorOne", "colorTwo", "colorThree","colorFour", "colorFive"]}/>
+        <div className="points">{this.state.points}</div>
+        </>
     }
 }
