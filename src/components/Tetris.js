@@ -3,16 +3,6 @@ import Grid from "./Grid.js";
 import { Line, TeeShape, SnakeShapeRight, SnakeShapeLeft,
 LShapeRight, LShapeLeft, Square } from "../shapes.js";
 
-
-// TODO: different colors for different shapes
-// todo: beveled edges
-// TODO: game over when overflow at top
-// TODO: increment points when row filled
-// TODO: sound when row filled
-// TODO: display points
-// TODO: speed up with point total (new level every four points)
-// TODO: soft code the rotations
-
 export default class Tetris extends React.Component {
     constructor(props) {
         super(props)
